@@ -77,6 +77,13 @@ let TestTupleExpr() =
     Printf.eprintfn "%A" (Parse "tuple { 1 ; 2 ; 3 ; 4 }")
 
 [<Test>]
+let TestArrayExpr() =
+    Printf.eprintfn "%A" (Parse "array { 1 }")
+    Printf.eprintfn "%A" (Parse "array { 1 ; 2 }")
+    Printf.eprintfn "%A" (Parse "array { 1 ; 2 ; 3 }")
+    Printf.eprintfn "%A" (Parse "array { 1 ; 2 ; 3 ; 4 }")
+
+[<Test>]
 let test() =
     // Printf.eprintfn "%A" (Parse "1%2+3")
     // Printf.eprintfn "%A" (Parse "1/2+3")

@@ -188,11 +188,11 @@ array_expr:
     | ARRAY LCURLY array_entry_list RCURLY  { AST.ArrayLiteral($3) }
 
 array_entry_list:
-    | array_entry array_entry_list          { $1 :: $2 }
+    | array_entry sep array_entry_list      { $1 :: $3 }
     | array_entry                           { [$1] }
 
 array_entry:
-    | expr sep                              { $1 }
+    | expr                                  { $1 }
 
 // Dictionary: dictionary { ... }
 dict_expr:

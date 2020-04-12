@@ -2,270 +2,132 @@
 module ParserTests
 
 open NUnit.Framework
+open FSharp.Text.Lexing
 
-open FParsec
-open Parser
 open AST
 
-// TODO: How can we test for things that should not parse?
-// Example: parseIdentifier "0Hola" should not parse into Identifier.
+let Parse input =
+    let tokenized = LexBuffer<char>.FromString(input)
+    try
+        let tt a =
+            // eprintf "%A" a
+            Lexer.tokenize a
 
-let parserTest parser input =
-    match run parser input with
-    | Success(result, _, _) -> result
-    | Failure(error, _, _) -> failwith error
+        Parser.program tt tokenized
+    with e ->
+        let pos = tokenized.EndPos
+        let line = pos.Line
+        let column = pos.Column
+        let lastToken = System.String(tokenized.Lexeme)
+        eprintfn "Parse failed at line %d, column %d" line column
+        eprintfn "Input: %A" input
+        exit 1
 
-[<TestFixture>]
-type CommentTests() =
+let getProgramExpression = function
+    | Program(_, expr) -> expr
 
-    [<Test>]
-    member this.TestComment() =
-        let expected = Comment "hola!"
-        let actual = parserTest parseComment "//hola!"
+[<Test>]
+let TestNumbers() =
+    // Program ([],Constant (Uint8 231uy))
+    // let numbers_uint16 = lazy [0us .. 0xffffus]
+    // let numbers_uint32 = lazy [0u .. 0xffffffffu]
+    // let numbers_uint64 = lazy [0UL .. 0xffffffffffffffffUL]
+
+    let generate n =
+        [ for i in 0 .. n -> (pown 2 i) - 1 ]
+
+    let toTestcase n = uint8 (n), sprintf "%uu8" n
+
+    let n8 = generate 8 |> List.map toTestcase
+    // let n16 = generate 16 |> List.map (toTestcase Uint16)
+    // let n32 = generate 32 |> List.map (toTestcase Uint32)
+    // let n64 = generate 64 |> List.map (toTestcase Uint64)
+
+    for element in n8 do
+        let n, str = element
+
+        let actual =
+            str
+            |> Parse
+            |> getProgramExpression
+
+        let expected = Constant(Uint8 n)
         Assert.That(expected, Is.EqualTo(actual))
 
-[<TestFixture>]
-type ExpressionTests() =
+// assert v = (Uint8 n) |> ignore
 
-    [<Test>]
-    member this.TestUnit() =
-        let elements = [
-            "unit", Unit
-            "true", Boolean true
-            "false", Boolean false
-        ]
+[<Test>]
+let test() =
+    // Printf.eprintfn "%A" (Parse "1%2+3")
+    // Printf.eprintfn "%A" (Parse "1/2+3")
+    // Printf.eprintfn "%A" (Parse "1*2+3")
+    // Printf.eprintfn "%A" (Parse "1%2-3")
+    // Printf.eprintfn "%A" (Parse "1/2-3")
+    // Printf.eprintfn "%A" (Parse "1*2-3")
+    // Printf.eprintfn "%A" (Parse "1%2<<3")
+    // Printf.eprintfn "%A" (Parse "1/2<<3")
+    // Printf.eprintfn "%A" (Parse "1*2<<3")
+    // Printf.eprintfn "%A" (Parse "1%2>>3")
+    // Printf.eprintfn "%A" (Parse "1/2>>3")
+    // Printf.eprintfn "%A" (Parse "1*2>>3")
+    // Printf.eprintfn "%A" (Parse "1%2<3")
+    // Printf.eprintfn "%A" (Parse "1/2==3")
+    // Printf.eprintfn "%A" (Parse "1*2&3")
+    // Printf.eprintfn "%A" (Parse "1*2^3")
+    // Printf.eprintfn "%A" (Parse "1*2|3")
+    // Printf.eprintfn "%A" (Parse "1&2^3")
+    // Printf.eprintfn "%A" (Parse "")
+    // Printf.eprintfn "%A" (Parse "1")
+    // Printf.eprintfn "%A" (Parse "1++")
+    // Printf.eprintfn "%A" (Parse "1--")
+    // Printf.eprintfn "%A" (Parse "++1")
+    // Printf.eprintfn "%A" (Parse "--1")
+    // Printf.eprintfn "%A" (Parse "1*2")
+    // Printf.eprintfn "%A" (Parse "1/2")
+    // Printf.eprintfn "%A" (Parse "1%2")
+    // Printf.eprintfn "%A" (Parse "1+2")
+    // Printf.eprintfn "%A" (Parse "1-2")
+    // Printf.eprintfn "%A" (Parse "1<2")
+    // Printf.eprintfn "%A" (Parse "1<=2")
+    // Printf.eprintfn "%A" (Parse "1>2")
+    // Printf.eprintfn "%A" (Parse "1>=2")
+    // Printf.eprintfn "%A" (Parse "1==2")
+    // Printf.eprintfn "%A" (Parse "1!=2")
+    // Printf.eprintfn "%A" (Parse "1&2")
+    // Printf.eprintfn "%A" (Parse "1|2")
+    // Printf.eprintfn "%A" (Parse "1^2")
+    // Printf.eprintfn "%A" (Parse "(1)")
+    // Printf.eprintfn "%A" (Parse "open SomeModule")
+    // Printf.eprintfn "%A" (Parse "let a = 1")
+    // Printf.eprintfn "%A" (Parse "~1*2")
+    // Printf.eprintfn "%A" (Parse "tuple { 1; 2; }")
+    // Printf.eprintfn "%A" (Parse "array { 1; 2; }")
+    // Printf.eprintfn "%A" (Parse "dict { 1:1; 2:3; }")
+    // Printf.eprintfn "%A" (Parse "module { 1 }")
+    // Printf.eprintfn "%A" (Parse "1 // hola\n")
+    // Printf.eprintfn "%A" (Parse "\"hola\"[1]")
+    // Printf.eprintfn "%A" (Parse "hola[1]")
+    // Printf.eprintfn "%A" (Parse "1 // hola")
 
-        elements |> List.iter (fun (input, expected) ->
-            let actual = parserTest parseExpression input
-            Assert.That(expected, Is.EqualTo(actual))
-        )
+    Printf.eprintfn "%A" (Parse "lambda () { 1 }")
+    Printf.eprintfn "%A" (Parse "lambda (a0) { 1 }")
+    Printf.eprintfn "%A" (Parse "lambda (a0, a1) { 1 }")
+    Printf.eprintfn "%A" (Parse "lambda (a0, a1, a2) { 1+2 }")
+    Printf.eprintfn "%A" (Parse "lambda (a0:int):string { 1 }")
+    Printf.eprintfn "%A" (Parse "lambda (a0:string, a1:float) { 1 }")
+    Printf.eprintfn "%A" (Parse "lambda (a0, a1, a2) { 1 }")
 
-    [<Test>]
-    member this.TestZeros() =
-        let elements = [
-            "0", Integer 0L
-            "0x0", Integer 0L
-            "0.0", Float 0.0
-        ]
 
-        elements |> List.iter (fun (input, expected) ->
-            let actual = parserTest parseExpression input
-            Assert.That(expected, Is.EqualTo(actual))
-        )
+    // Printf.eprintfn "%A" (Parse "1")
+    // Printf.eprintfn "%A" (Parse "0x2")
+    // Printf.eprintfn "%A" (Parse "0b11")
 
-    [<Test>]
-    member this.TestIntegerLimits() =
-        let elements = [
-            "0x7fffffffffffffff", Integer 0x7fffffffffffffffL
-            "9223372036854775807", Integer 9223372036854775807L
-        ]
-
-        elements |> List.iter (fun (input, expected) ->
-            let actual = parserTest parseExpression input
-            Assert.That(expected, Is.EqualTo(actual))
-        )
-
-    [<Test>]
-    member this.TestStrings() =
-        let elements = [
-            "\"\"", String ""
-            "\"goose\"", String "goose"
-        ]
-
-        elements |> List.iter (fun (input, expected) ->
-            let actual = parserTest parseExpression input
-            Assert.That(expected, Is.EqualTo(actual))
-        )
-
-    [<Test>]
-    member this.IdentifierTests() =
-        let elements = [
-            "Example", Identifier "Example"
-            "_Example", Identifier "_Example"
-            "_0Example", Identifier "_0Example"
-        ]
-
-        elements |> List.iter (fun (input, expected) ->
-            let actual = parserTest parseExpression input
-            Assert.That(expected, Is.EqualTo(actual))
-        )
-
-    [<Test>]
-    member this.TestPostfixExpression() =
-        let makeIntExpr op value =
-            let _value = Integer (int64 value)
-            PostfixExpression(op, _value)
-
-        let elements = [
-            "1++", makeIntExpr "inc" 1
-            "1--", makeIntExpr "dec" 1
-        ]
-
-        elements |> List.iter (fun (input, expected) ->
-            let actual = parserTest parseExpression input
-            Assert.That(expected, Is.EqualTo(actual))
-        )
-
-    [<Test>]
-    member this.TestPostfixDecExpression() =
-        let makeIntExpr op value =
-            let _value = Integer (int64 value)
-            PrefixExpression(op, _value)
-
-        let makeBoolExpr op value =
-            PrefixExpression(op, Boolean value)
-
-        let elements = [
-            "!false", makeBoolExpr "not" false
-            "++1", makeIntExpr "inc" 1
-            "--1", makeIntExpr "dec" 1
-            "~1", makeIntExpr "bnot" 1
-            "-1", makeIntExpr "negative" 1
-        ]
-
-        elements |> List.iter (fun (input, expected) ->
-            let actual = parserTest parseExpression input
-            Assert.That(expected, Is.EqualTo(actual))
-        )
-
-    [<Test>]
-    member this.TestInfixExpression() =
-        let makeIntExpr op lhs rhs =
-            let _lhs =  Integer (int64 lhs)
-            let _rhs =  Integer (int64 rhs)
-            InfixExpression(op, _lhs, _rhs)
-
-        let elements = [
-            "1 * 1", makeIntExpr "mul" 1 1
-            "1 / 1", makeIntExpr "div" 1 1
-            "1 % 1", makeIntExpr "mod" 1 1
-            "1 + 1", makeIntExpr "plus" 1 1
-            "1 - 1", makeIntExpr "minus" 1 1
-            "1 << 1", makeIntExpr "lshift" 1 1
-            "1 >> 1", makeIntExpr "rshift" 1 1
-            "1 < 1", makeIntExpr "lt" 1 1
-            "1 <= 1", makeIntExpr "le" 1 1
-            "1 > 1", makeIntExpr "gt" 1 1
-            "1 >= 1", makeIntExpr "ge" 1 1
-            "1 == 1", makeIntExpr "eq" 1 1
-            "1 != 1", makeIntExpr "ne" 1 1
-            "1 & 1", makeIntExpr "band" 1 1
-            "1 ^ 1", makeIntExpr "bxor" 1 1
-            "1 | 1", makeIntExpr "bor" 1 1
-            "1 and 1", makeIntExpr "and" 1 1
-            "1 xor 1", makeIntExpr "xor" 1 1
-            "1 or 1", makeIntExpr "or" 1 1
-        ]
-
-        elements |> List.iter (fun (input, expected) ->
-            let actual = parserTest parseExpression input
-            Assert.That(expected, Is.EqualTo(actual))
-        )
-
-    [<Test>]
-    member this.TestArrayExpressions() =
-        let elements = [
-            "[ 1 ]", ArrayLiteral [Integer 1L]
-            "[ 1 ; 2 ]", ArrayLiteral [Integer 1L; Integer 2L]
-        ]
-
-        elements |> List.iter (fun (input, expected) ->
-            let actual = parserTest parseExpression input
-            Assert.That(expected, Is.EqualTo(actual))
-        )
-
-    [<Test>]
-    member this.TestTupleExpressions() =
-        let elements = [
-            "( 1 )", TupleLiteral [Integer 1L]
-            "( 1 ; hello )", TupleLiteral [Integer 1L; Identifier "hello"]
-        ]
-
-        elements |> List.iter (fun (input, expected) ->
-            let actual = parserTest parseExpression input
-            Assert.That(expected, Is.EqualTo(actual))
-        )
-
-    [<Test>]
-    member this.TestDictionaryExpressions() =
-        let make x y = (Integer x, Integer y)
-        let elements = [
-            "{ 1 : 2 }", DictionaryLiteral [ (make 1L 2L) ]
-            "{ 1 : 2 ; 3 : 4}", DictionaryLiteral [ (make 1L 2L) ; (make 3L 4L) ]
-        ]
-
-        elements |> List.iter (fun (input, expected) ->
-            let actual = parserTest parseExpression input
-            Assert.That(expected, Is.EqualTo(actual))
-        )
-
-    [<Test>]
-    member this.TestLet() =
-        let elements = [
-            "let name = value", Let (Identifier "name", Identifier "value")
-            "let name = [1 ; 2]", Let (Identifier "name", ArrayLiteral [Integer 1L; Integer 2L])
-        ]
-
-        elements |> List.iter (fun (input, expected) ->
-            let actual = parserTest parseLet input
-            Printf.eprintf "%A" actual
-            Assert.That(expected, Is.EqualTo(actual))
-        )
-
-    [<Test>]
-    member this.TestFunction() =
-        let elements = [
-            "a -> 1", Function ([Identifier "a"], Integer 1L)
-            "a -> 1 + 1", Function ([Identifier "a"], InfixExpression ("plus", Integer 1L, Integer 1L))
-        ]
-
-        elements |> List.iter (fun (input, expected) ->
-            let actual = parserTest parseFunction input
-            Printf.eprintf "%A" actual
-            Assert.That(expected, Is.EqualTo(actual))
-        )
-
-    [<Test>]
-    member this.TestDeclarations() =
-        let elements = [
-            "open System", Open (Identifier "System")
-            "module { 1+1 }", Module (InfixExpression ("plus", Integer 1L, Integer 1L))
-        ]
-
-        elements |> List.iter (fun (input, expected) ->
-            let actual = parserTest parseDeclaration input
-            Printf.eprintf "%A" actual
-            Assert.That(expected, Is.EqualTo(actual))
-        )
-
-    // [<Test>]
-    // member this.TestProgram() =
-    //     let code = """
-    //     let a = 1
-    //     let b = 2
-    //     a+b
-    //     """
-
-    //     let elements = [
-    //         "let cpepepepepep = 1", Unit
-    //     ]
-
-    //     elements |> List.iter (fun (input, expected) ->
-    //         let actual = parserTest parseProgram input
-    //         Printf.eprintf "%A" actual
-    //         Assert.That(expected, Is.EqualTo(actual))
-    //     )
-
-// Program
-//   module-elements
-//     type-definition
-//     module-definition
-//     import-declaration
-//     function-definition
-//     value-definition
-
-// [<Test>]
-// let ParsePrograms =
-//     let input = "a = []"
-//     parseExpression input |> ignore
-//     ()
+// Printf.eprintfn "%A" (Parse "(hola:function<int>) -> 1")
+// Printf.eprintfn "%A" (Parse "(hola:tuple<int>) -> 1")
+// Printf.eprintfn "%A" (Parse "(hola:array<int>) -> 1")
+// Printf.eprintfn "%A" (Parse "(hola:struct<int>) -> 1")
+// Printf.eprintfn "%A" (Parse "hola (mundo:long) -> 2")
+// Printf.eprintfn "%A" (Parse "(hola:int) mundo -> 3")
+// Printf.eprintfn "%A" (Parse "(hola:int) (mundo:long) -> 4")
+// Printf.eprintfn "%A" (Parse "(hola:int) -> 5")
+// Printf.eprintfn "%A" (Parse "hola -> 6")

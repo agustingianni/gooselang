@@ -1,0 +1,226 @@
+{
+// module Lexer
+open Parser
+open FSharp.Text.Lexing
+
+let lexeme lexbuf = LexBuffer<char>.LexemeString lexbuf
+
+
+let trimBoth (s:string) n m = s.Substring(n, s.Length - (n+m))
+let lexemeTrimBoth   lexbuf n m = trimBoth (lexeme lexbuf) n m
+let lexemeTrimRight  lexbuf n = lexemeTrimBoth lexbuf 0 n
+let lexemeTrimLeft   lexbuf n = lexemeTrimBoth lexbuf n 0
+
+let digit d = 
+    if d >= '0' && d <= '9' then int32 d - int32 '0'   
+    else failwith "digit" 
+
+let hexdigit d = 
+    if d >= '0' && d <= '9' then digit d 
+    elif d >= 'a' && d <= 'f' then int32 d - int32 'a' + 10
+    elif d >= 'A' && d <= 'F' then int32 d - int32 'A' + 10
+    else failwith "hexdigit" 
+
+let unicodeGraphShort (s:string) =
+    if s.Length <> 4 then failwith "unicodegraph"
+    uint16 (hexdigit s.[0] * 4096 + hexdigit s.[1] * 256 + hexdigit s.[2] * 16 + hexdigit s.[3])
+
+let hexGraphShort (s:string) =
+    if s.Length <> 2 then failwith "hexgraph"
+    uint16 (hexdigit s.[0] * 16 + hexdigit s.[1])
+
+let escape c =
+    match c with
+    | '\\' -> '\\'
+    | '\'' -> '\''
+    | 'a' -> char 7
+    | 'f' -> char 12
+    | 'v' -> char 11
+    | 'n' -> '\n'
+    | 't' -> '\t'
+    | 'b' -> '\b'
+    | 'r' -> '\r'
+    | c -> c
+
+module Keywords =
+    open System.Collections.Generic
+
+    let private keywords = [
+        "and" ; "array"; "break" ; "continue" ; "dict" ; "do" ; "else"
+        "false" ; "for" ; "if" ; "in" ; "not" ; "open"; "or" ; "struct"
+        "then" ; "to" ; "true" ; "tuple" ; "union" ; "while" ; "xor"
+        "let" ; "match" ; "type" ; "lazy" ; "assert" ; "lambda"
+    ]
+
+    let private keywordsSet =
+        new HashSet<string>(keywords)
+    
+    let isKeyword value =
+        keywordsSet.Contains(value)
+
+}
+
+// Regular expressions
+let comment = "//"
+let quote = '"'
+let letter = '\Lu' | '\Ll' | '\Lt' | '\Lm' | '\Lo' | '\Nl'
+let digit = '\Nd'
+let hex = ['0'-'9'] | ['A'-'F'] | ['a'-'f']
+let bin = ['0'-'1']
+let truewhite = [' ']
+let offwhite = ['\t']
+let anywhite = truewhite | offwhite
+let binteger = ( '0' 'x' hex+ | '0' 'b' bin+ )
+
+let integer = digit+
+
+// Default integers.
+let int = (binteger | integer)
+let xint = binteger
+
+// Typed integers.
+let int8 = (binteger | integer) 's' '8'
+let uint8 = (binteger | integer) 'u' '8'
+let int16 = (binteger | integer) 's' '1' '6'
+let uint16 = (binteger | integer) 'u' '1' '6'
+let int32 = (binteger | integer) 's' '3' '2'
+let uint32 = (binteger | integer) 'u' '3' '2'
+let int64 = (binteger | integer) 's' '6' '4'
+let uint64 = (binteger | integer) 'u' '6' '4'
+
+// Floating point numbers.
+let floatp = digit+ '.' digit*
+let floate = digit+ '.' digit* ('e' | 'E') ['+' '-']? digit+
+let float = floatp | floate
+
+let ieee32 = float 'f'
+let ieee64 = float
+
+let esc_char = ('\\' ( '\\' | "\"" | '\'' | 'a' | 'f' | 'v' | 'n' | 't' | 'b' | 'r'))
+let esc_hex = '\\' 'x' hex hex
+let esc_unicode = '\\' 'u' hex hex hex hex
+let newline = ('\n' | '\r' '\n')
+
+let connecting_char = '\Pc'
+let combining_char = '\Mn' | '\Mc'
+let formatting_char = '\Cf'
+
+let ident_start_char =
+    letter | '_'
+
+let ident_char =
+    letter
+  | connecting_char
+  | combining_char
+  | formatting_char
+  | digit
+  | ['\'']
+
+let ident = ident_start_char ident_char*
+
+rule tokenize = parse
+
+    // Handle whitespaces and newlines.
+    | anywhite      { tokenize lexbuf }
+    | newline       { lexbuf.EndPos <- lexbuf.EndPos.NextLine; tokenize lexbuf }
+
+    // Keywords.
+    | "and"         { AND }
+    | "array"       { ARRAY }
+    | "assert"      { ASSERT }
+    | "break"       { BREAK }
+    | "continue"    { CONTINUE }
+    | "dict"        { DICT }
+    | "do"          { DO }
+    | "else"        { ELSE }
+    | "false"       { FALSE }
+    | "for"         { FOR }
+    | "if"          { IF }
+    | "in"          { IN }
+    | "lambda"      { LAMBDA }
+    | "lazy"        { LAZY }
+    | "let"         { LET }
+    | "match"       { MATCH }
+    | "module"      { MODULE }
+    | "not"         { NOT }
+    | "open"        { OPEN }
+    | "or"          { OR }
+    | "struct"      { STRUCT }
+    | "then"        { THEN }
+    | "to"          { TO }
+    | "true"        { TRUE }
+    | "tuple"       { TUPLE }
+    | "union"       { UNION }
+    | "unit"        { UNIT }
+    | "while"       { WHILE }
+
+    // What is not a keyword then it must be an identifier.
+    | ident         { lexeme lexbuf |> IDENT }
+
+    // Numeric constants.
+    | ieee32        { lexemeTrimRight lexbuf 1 |> float32 |> IEEE32 }
+    | ieee64        { lexeme lexbuf |> float |> IEEE64 }
+    | int8          { lexemeTrimRight lexbuf 2 |> int8 |> INT8 }
+    | int16         { lexemeTrimRight lexbuf 3 |> int16 |> INT16 }
+    | int32         { lexemeTrimRight lexbuf 3 |> int32 |> INT32 }
+    | int64         { lexemeTrimRight lexbuf 3 |> int64 |> INT64 }
+    | uint8         { lexemeTrimRight lexbuf 2 |> uint8 |> UINT8 }
+    | uint16        { lexemeTrimRight lexbuf 3 |> uint16 |> UINT16 }
+    | uint32        { lexemeTrimRight lexbuf 3 |> uint32 |> UINT32 }
+    | uint64        { lexemeTrimRight lexbuf 3 |> uint64 |> UINT64 }
+    | int           { lexeme lexbuf |> int64 |> INT64 }
+
+    // Strings.
+    | '"'           { STRING (String [] lexbuf) }
+
+    // Operators.
+    | "--"          { DEC }
+    | "++"          { INC }
+    | "~"           { WAVE }
+    | "!"           { BANG }
+    | "-"           { MINUS }
+    | "*"           { STAR }
+    | "/"           { DIV }
+    | "+"           { PLUS }
+    | "<<"          { LSHIFT }
+    | ">>"          { RSHIFT }
+    | "<"           { LT }
+    | "<="          { LTE }
+    | ">"           { GT }
+    | ">="          { GTE }
+    | "="           { ASSIGN }
+    | "=="          { EQ }
+    | "!="          { NE }
+    | "&"           { AMP }
+    | "|"           { BAR }
+    | "^"           { HAT }
+    | "%"           { MOD }
+    | ","           { COMMA }
+    | ";"           { SEMI }
+    | ":"           { COLON }
+    | "->"          { ARROW }
+    | ".."          { DOT_DOT }
+    | "["           { LBRACK }
+    | "]"           { RBRACK }
+    | "("           { LPAREN }
+    | ")"           { RPAREN }
+    | "{"           { LCURLY }
+    | "}"           { RCURLY }
+
+    // Comments are not tokenized but skipped.
+    | comment       { Comment lexbuf; tokenize lexbuf }
+    | eof           { EOF }
+
+// TODO: This does not handle a comment that ends with a EOF for some reason.
+and Comment = parse
+    | newline       { lexbuf.EndPos <- lexbuf.EndPos.NextLine }
+    | eof           { () }
+    | _             { Comment lexbuf }
+
+and String chars = parse
+    | quote         { Microsoft.FSharp.Core.String.concat "" (List.map string (List.rev chars)) }
+    | esc_char      { String ((lexbuf.LexemeChar 0 |> escape) :: chars) lexbuf }
+    | esc_hex       { String ((hexGraphShort (lexemeTrimLeft lexbuf 2) |> char) :: chars) lexbuf }
+    | esc_unicode   { String ((unicodeGraphShort (lexemeTrimLeft lexbuf 2) |> char) :: chars) lexbuf }
+    | _             { String (lexbuf.LexemeChar 0 :: chars) lexbuf }
+    | eof           { failwith "Lexer error: unterminated string." }

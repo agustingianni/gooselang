@@ -27,3 +27,6 @@ nupkg/
 project.lock.json
 x64/
 x86/
+src/Parser/Parser.fs
+src/Parser/Lexer.fs
+src/Parser/Parser.fsi

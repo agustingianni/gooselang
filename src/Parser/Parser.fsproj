@@ -4,9 +4,18 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Ast.fs" />
+    <FsYacc Include="Parser.fsy">
+      <OtherFlags>-v --module Parser</OtherFlags>
+    </FsYacc>
+    <FsLex Include="Lexer.fsl">
+      <OtherFlags>--module Lexer --unicode</OtherFlags>
+    </FsLex>  
+    <Compile Include="Parser.fsi" />
     <Compile Include="Parser.fs" />
+    <Compile Include="Lexer.fs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FParsec" Version="1.1.1" />
+    <PackageReference Include="FsLexYacc" Version="10.0.0" />
   </ItemGroup>
 </Project>

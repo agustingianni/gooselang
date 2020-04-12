@@ -6,6 +6,9 @@ Goose complete programming language
 - https://github.com/pascallouisperez/mu-ml
 - https://lorgonblog.wordpress.com/2008/04/09/catamorphisms-part-three/
 - https://github.com/dotnet/corert
+- https://www.beeflang.org/
+- https://eev.ee/blog/2016/12/01/lets-stop-copying-c/
+- http://www.stephendiehl.com/llvm/
 
 ## Bindings
 
@@ -61,11 +64,30 @@ let tuple = ( 1 ; "a" ; ident )
 let dictionary = { 1 : "one" ; 2 : "two" }
 ```
 
+## Predicates
+
+```fsharp
+empty ? list
+```
+
+## Symbols
+
+```fsharp
+s"HOLA"
+```
+
 ## Iteration
 
 ```fsharp
-for x in things
+for x in things {
     printf x
+}
+```
+
+```fsharp
+repeat 1000
+    printf "Hola!"
+
 ```
 
 ## In / Out

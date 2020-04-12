@@ -17,6 +17,10 @@ type Parameter =
 type StructField =
     | StructField of Name * Type
 
+type UnionField =
+    | TypedUnionField of Name * Type
+    | UnTypedUnionField of Name
+
 type Literal =
     | Boolean of bool
     | Int8 of int8
@@ -45,7 +49,7 @@ type Expression =
     | IndexedLookup of Expression * Expression
     | Module
     | Struct of StructField list
-    | Union
+    | Union of UnionField list
     | While of Expression * Expression
 
     // | Let of Expression * Expression

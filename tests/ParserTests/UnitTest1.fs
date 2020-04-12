@@ -66,6 +66,10 @@ let TestStructExpr() =
     Printf.eprintfn "%A" (Parse "struct { a:int b:string }")
 
 [<Test>]
+let TestUnionExpr() =
+    Printf.eprintfn "%A" (Parse "union { UnionElement:int }")
+
+[<Test>]
 let test() =
     // Printf.eprintfn "%A" (Parse "1%2+3")
     // Printf.eprintfn "%A" (Parse "1/2+3")

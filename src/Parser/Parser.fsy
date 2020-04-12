@@ -109,6 +109,7 @@ expr:
     | dict_expr                             { $1 }
     | mod_expr                              { $1 }
     | struct_expr                           { $1 }
+    | union_expr                            { $1 }
     | index_lookup_expr                     { $1 }
     | lambda_expr                           { $1 }
 
@@ -156,17 +157,20 @@ struct_fields:
 struct_field:
     | IDENT COLON syn_type                  { AST.StructField($1, $3) }
 
-// Union: union { ... }
-// let Expr = union {
-//     Lambda of int * int
-//     Function of string * Expr
-// }
-// let Expr = union {
-//     Lambda: type<int, int>
-//     Function: type<string, Expr>
+// Union: union {
+//     Lambda: int
+//     Function: string
 // }
 union_expr:
-    | UNION LCURLY expr RCURLY              { AST.Union }
+    | UNION LCURLY union_fields RCURLY      { AST.Union($3) }
+
+union_fields:
+    | union_field union_fields              { $1 :: $2 }
+    | union_field                           { [$1] }
+
+union_field:
+    | IDENT COLON syn_type                  { AST.TypedUnionField($1, $3) }
+    | IDENT                                 { AST.UnTypedUnionField($1) }
 
 // Tuple: tuple { ... }
 tuple_expr:

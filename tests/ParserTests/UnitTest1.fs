@@ -59,6 +59,7 @@ let TestNumbers() =
 [<Test>]
 let TestIndexLookupExpr() =
     Printf.eprintfn "%A" (Parse "hola[0]")
+    Printf.eprintfn "%A" (Parse "\"hola\"[1]")
 
 [<Test>]
 let TestStructExpr() =
@@ -84,62 +85,10 @@ let TestArrayExpr() =
     Printf.eprintfn "%A" (Parse "array { 1 ; 2 ; 3 ; 4 }")
 
 [<Test>]
-let TestDictionaryExpr() =
-    Printf.eprintfn "%A" (Parse "dict { 1 : 1000 }")
+let TestDictionaryExpr() = Printf.eprintfn "%A" (Parse "dict { 1 : 1000 }")
 
 [<Test>]
-let test() =
-    // Printf.eprintfn "%A" (Parse "1%2+3")
-    // Printf.eprintfn "%A" (Parse "1/2+3")
-    // Printf.eprintfn "%A" (Parse "1*2+3")
-    // Printf.eprintfn "%A" (Parse "1%2-3")
-    // Printf.eprintfn "%A" (Parse "1/2-3")
-    // Printf.eprintfn "%A" (Parse "1*2-3")
-    // Printf.eprintfn "%A" (Parse "1%2<<3")
-    // Printf.eprintfn "%A" (Parse "1/2<<3")
-    // Printf.eprintfn "%A" (Parse "1*2<<3")
-    // Printf.eprintfn "%A" (Parse "1%2>>3")
-    // Printf.eprintfn "%A" (Parse "1/2>>3")
-    // Printf.eprintfn "%A" (Parse "1*2>>3")
-    // Printf.eprintfn "%A" (Parse "1%2<3")
-    // Printf.eprintfn "%A" (Parse "1/2==3")
-    // Printf.eprintfn "%A" (Parse "1*2&3")
-    // Printf.eprintfn "%A" (Parse "1*2^3")
-    // Printf.eprintfn "%A" (Parse "1*2|3")
-    // Printf.eprintfn "%A" (Parse "1&2^3")
-    // Printf.eprintfn "%A" (Parse "")
-    // Printf.eprintfn "%A" (Parse "1")
-    // Printf.eprintfn "%A" (Parse "1++")
-    // Printf.eprintfn "%A" (Parse "1--")
-    // Printf.eprintfn "%A" (Parse "++1")
-    // Printf.eprintfn "%A" (Parse "--1")
-    // Printf.eprintfn "%A" (Parse "1*2")
-    // Printf.eprintfn "%A" (Parse "1/2")
-    // Printf.eprintfn "%A" (Parse "1%2")
-    // Printf.eprintfn "%A" (Parse "1+2")
-    // Printf.eprintfn "%A" (Parse "1-2")
-    // Printf.eprintfn "%A" (Parse "1<2")
-    // Printf.eprintfn "%A" (Parse "1<=2")
-    // Printf.eprintfn "%A" (Parse "1>2")
-    // Printf.eprintfn "%A" (Parse "1>=2")
-    // Printf.eprintfn "%A" (Parse "1==2")
-    // Printf.eprintfn "%A" (Parse "1!=2")
-    // Printf.eprintfn "%A" (Parse "1&2")
-    // Printf.eprintfn "%A" (Parse "1|2")
-    // Printf.eprintfn "%A" (Parse "1^2")
-    // Printf.eprintfn "%A" (Parse "(1)")
-    // Printf.eprintfn "%A" (Parse "open SomeModule")
-    // Printf.eprintfn "%A" (Parse "let a = 1")
-    // Printf.eprintfn "%A" (Parse "~1*2")
-    // Printf.eprintfn "%A" (Parse "tuple { 1; 2; }")
-    // Printf.eprintfn "%A" (Parse "array { 1; 2; }")
-    // Printf.eprintfn "%A" (Parse "dict { 1:1; 2:3; }")
-    // Printf.eprintfn "%A" (Parse "module { 1 }")
-    // Printf.eprintfn "%A" (Parse "1 // hola\n")
-    // Printf.eprintfn "%A" (Parse "\"hola\"[1]")
-    // Printf.eprintfn "%A" (Parse "hola[1]")
-    // Printf.eprintfn "%A" (Parse "1 // hola")
-
+let TestLambdaExpr() =
     Printf.eprintfn "%A" (Parse "lambda () { 1 }")
     Printf.eprintfn "%A" (Parse "lambda (a0) { 1 }")
     Printf.eprintfn "%A" (Parse "lambda (a0, a1) { 1 }")
@@ -148,17 +97,75 @@ let test() =
     Printf.eprintfn "%A" (Parse "lambda (a0:string, a1:float) { 1 }")
     Printf.eprintfn "%A" (Parse "lambda (a0, a1, a2) { 1 }")
 
+[<Test>]
+let TextInfixExpr() =
+    Printf.eprintfn "%A" (Parse "1*2")
+    Printf.eprintfn "%A" (Parse "1/2")
+    Printf.eprintfn "%A" (Parse "1%2")
+    Printf.eprintfn "%A" (Parse "1+2")
+    Printf.eprintfn "%A" (Parse "1-2")
+    Printf.eprintfn "%A" (Parse "1<2")
+    Printf.eprintfn "%A" (Parse "1<=2")
+    Printf.eprintfn "%A" (Parse "1>2")
+    Printf.eprintfn "%A" (Parse "1>=2")
+    Printf.eprintfn "%A" (Parse "1==2")
+    Printf.eprintfn "%A" (Parse "1!=2")
+    Printf.eprintfn "%A" (Parse "1&2")
+    Printf.eprintfn "%A" (Parse "1|2")
+    Printf.eprintfn "%A" (Parse "1^2")
 
-// Printf.eprintfn "%A" (Parse "1")
-// Printf.eprintfn "%A" (Parse "0x2")
-// Printf.eprintfn "%A" (Parse "0b11")
+let TextInfixExprPrecedence() =
+    Printf.eprintfn "%A" (Parse "1%2+3")
+    Printf.eprintfn "%A" (Parse "1/2+3")
+    Printf.eprintfn "%A" (Parse "1*2+3")
+    Printf.eprintfn "%A" (Parse "1%2-3")
+    Printf.eprintfn "%A" (Parse "1/2-3")
+    Printf.eprintfn "%A" (Parse "1*2-3")
+    Printf.eprintfn "%A" (Parse "1%2<<3")
+    Printf.eprintfn "%A" (Parse "1/2<<3")
+    Printf.eprintfn "%A" (Parse "1*2<<3")
+    Printf.eprintfn "%A" (Parse "1%2>>3")
+    Printf.eprintfn "%A" (Parse "1/2>>3")
+    Printf.eprintfn "%A" (Parse "1*2>>3")
+    Printf.eprintfn "%A" (Parse "1%2<3")
+    Printf.eprintfn "%A" (Parse "1/2==3")
+    Printf.eprintfn "%A" (Parse "1*2&3")
+    Printf.eprintfn "%A" (Parse "1*2^3")
+    Printf.eprintfn "%A" (Parse "1*2|3")
+    Printf.eprintfn "%A" (Parse "1&2^3")
 
-// Printf.eprintfn "%A" (Parse "(hola:function<int>) -> 1")
-// Printf.eprintfn "%A" (Parse "(hola:tuple<int>) -> 1")
-// Printf.eprintfn "%A" (Parse "(hola:array<int>) -> 1")
-// Printf.eprintfn "%A" (Parse "(hola:struct<int>) -> 1")
-// Printf.eprintfn "%A" (Parse "hola (mundo:long) -> 2")
-// Printf.eprintfn "%A" (Parse "(hola:int) mundo -> 3")
-// Printf.eprintfn "%A" (Parse "(hola:int) (mundo:long) -> 4")
-// Printf.eprintfn "%A" (Parse "(hola:int) -> 5")
-// Printf.eprintfn "%A" (Parse "hola -> 6")
+[<Test>]
+let TestPostfixExpr() =
+    Printf.eprintfn "%A" (Parse "1++")
+    Printf.eprintfn "%A" (Parse "1--")
+
+[<Test>]
+let TestModuleExpr() =
+    Printf.eprintfn "%A" (Parse "module { 1 }")
+
+[<Test>]
+let TestOpenModuleExpr() =
+    Printf.eprintfn "%A" (Parse "open SomeModule")
+
+[<Test>]
+let TextPrefixExpr() =
+    Printf.eprintfn "%A" (Parse "++1")
+    Printf.eprintfn "%A" (Parse "--1")
+
+[<Test>]
+let TextNumberLiterals() =
+    Printf.eprintfn "%A" (Parse "1")
+    Printf.eprintfn "%A" (Parse "0x2")
+    Printf.eprintfn "%A" (Parse "0b11")
+
+// [<Test>]
+// let TestTypes() =
+//     Printf.eprintfn "%A" (Parse "(hola:function<int>) -> 1")
+//     Printf.eprintfn "%A" (Parse "(hola:tuple<int>) -> 1")
+//     Printf.eprintfn "%A" (Parse "(hola:array<int>) -> 1")
+//     Printf.eprintfn "%A" (Parse "(hola:struct<int>) -> 1")
+//     Printf.eprintfn "%A" (Parse "hola (mundo:long) -> 2")
+//     Printf.eprintfn "%A" (Parse "(hola:int) mundo -> 3")
+//     Printf.eprintfn "%A" (Parse "(hola:int) (mundo:long) -> 4")
+//     Printf.eprintfn "%A" (Parse "(hola:int) -> 5")
+//     Printf.eprintfn "%A" (Parse "hola -> 6")

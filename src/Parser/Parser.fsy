@@ -113,7 +113,6 @@ expr:
     | index_lookup_expr                     { $1 }
     | lambda_expr                           { $1 }
 
-
 // Identifier: someid
 variable_expr:
     | IDENT                                 { AST.Variable($1) }
@@ -226,6 +225,7 @@ infix_expr:
     | expr LTE expr                         { AST.InfixExpression("le", $1, $3) }
     | expr GT expr                          { AST.InfixExpression("gt", $1, $3) }
     | expr GTE expr                         { AST.InfixExpression("ge", $1, $3) }
+    | expr NE expr                          { AST.InfixExpression("ne", $1, $3) }
     | expr EQ expr                          { AST.InfixExpression("eq", $1, $3) }
     | expr AMP expr                         { AST.InfixExpression("band", $1, $3) }
     | expr BAR expr                         { AST.InfixExpression("bor", $1, $3) }
@@ -247,7 +247,6 @@ constant:
     | IEEE32                                { AST.Float32($1) }
     | IEEE64                                { AST.Float($1) }
     | STRING                                { AST.String($1) }
-
 
 // module:
 //     | MODULE IDENT { }

@@ -5,7 +5,7 @@
   <ItemGroup>
     <Compile Include="Ast.fs" />
     <FsYacc Include="Parser.fsy">
-      <OtherFlags>-v --module Parser</OtherFlags>
+      <OtherFlags>--module Parser</OtherFlags>
     </FsYacc>
     <FsLex Include="Lexer.fsl">
       <OtherFlags>--module Lexer --unicode</OtherFlags>

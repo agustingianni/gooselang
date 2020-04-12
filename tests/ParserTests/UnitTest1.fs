@@ -158,6 +158,19 @@ let TextNumberLiterals() =
     Printf.eprintfn "%A" (Parse "0x2")
     Printf.eprintfn "%A" (Parse "0b11")
 
+[<Test>]
+let TextProgram() =
+    Printf.eprintfn "%A" (Parse "")
+    Printf.eprintfn "%A" (Parse "
+    open Random
+    open Module
+    let var = 1
+    let type = array { 1 ; 2 }
+    let pepe = 1 + 1
+    pepe
+    ")
+
+
 // [<Test>]
 // let TestTypes() =
 //     Printf.eprintfn "%A" (Parse "(hola:function<int>) -> 1")

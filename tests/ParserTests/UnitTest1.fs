@@ -57,6 +57,15 @@ let TestNumbers() =
 // assert v = (Uint8 n) |> ignore
 
 [<Test>]
+let TestIndexLookupExpr() =
+    Printf.eprintfn "%A" (Parse "hola[0]")
+
+[<Test>]
+let TestStructExpr() =
+    Printf.eprintfn "%A" (Parse "struct { a:int }")
+    Printf.eprintfn "%A" (Parse "struct { a:int b:string }")
+
+[<Test>]
 let test() =
     // Printf.eprintfn "%A" (Parse "1%2+3")
     // Printf.eprintfn "%A" (Parse "1/2+3")
@@ -118,9 +127,9 @@ let test() =
     Printf.eprintfn "%A" (Parse "lambda (a0, a1, a2) { 1 }")
 
 
-    // Printf.eprintfn "%A" (Parse "1")
-    // Printf.eprintfn "%A" (Parse "0x2")
-    // Printf.eprintfn "%A" (Parse "0b11")
+// Printf.eprintfn "%A" (Parse "1")
+// Printf.eprintfn "%A" (Parse "0x2")
+// Printf.eprintfn "%A" (Parse "0b11")
 
 // Printf.eprintfn "%A" (Parse "(hola:function<int>) -> 1")
 // Printf.eprintfn "%A" (Parse "(hola:tuple<int>) -> 1")

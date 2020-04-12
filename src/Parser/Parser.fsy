@@ -108,6 +108,7 @@ expr:
     | array_expr                            { $1 }
     | dict_expr                             { $1 }
     | mod_expr                              { $1 }
+    | struct_expr                           { $1 }
     | index_lookup_expr                     { $1 }
     | lambda_expr                           { $1 }
 
@@ -146,7 +147,7 @@ mod_expr:
 
 // Struct: struct { ... }
 struct_expr:
-    | STRUCT LCURLY expr RCURLY             { AST.Struct }
+    | STRUCT LCURLY struct_fields RCURLY    { AST.Struct($3) }
 
 struct_fields:
     | struct_field struct_fields            { $1 :: $2 }

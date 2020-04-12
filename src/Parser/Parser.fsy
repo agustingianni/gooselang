@@ -199,11 +199,11 @@ dict_expr:
     | DICT LCURLY dict_entry_list RCURLY   { AST.DictionaryLiteral($3) }
 
 dict_entry_list:
-    | dict_entry dict_entry_list            { $1 :: $2 }
+    | dict_entry sep dict_entry_list        { $1 :: $3 }
     | dict_entry                            { [$1] }
 
 dict_entry:
-    | expr COLON expr sep                   { ($1, $3) }
+    | expr COLON expr                       { ($1, $3) }
 
 postfix_expr:
     | expr INC                              { AST.PostfixExpression("inc", $1) }

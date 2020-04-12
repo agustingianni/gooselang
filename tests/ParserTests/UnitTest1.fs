@@ -84,6 +84,10 @@ let TestArrayExpr() =
     Printf.eprintfn "%A" (Parse "array { 1 ; 2 ; 3 ; 4 }")
 
 [<Test>]
+let TestDictionaryExpr() =
+    Printf.eprintfn "%A" (Parse "dict { 1 : 1000 }")
+
+[<Test>]
 let test() =
     // Printf.eprintfn "%A" (Parse "1%2+3")
     // Printf.eprintfn "%A" (Parse "1/2+3")

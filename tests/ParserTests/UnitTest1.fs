@@ -70,6 +70,13 @@ let TestUnionExpr() =
     Printf.eprintfn "%A" (Parse "union { UnionElement:int }")
 
 [<Test>]
+let TestTupleExpr() =
+    Printf.eprintfn "%A" (Parse "tuple { 1 }")
+    Printf.eprintfn "%A" (Parse "tuple { 1 ; 2 }")
+    Printf.eprintfn "%A" (Parse "tuple { 1 ; 2 ; 3 }")
+    Printf.eprintfn "%A" (Parse "tuple { 1 ; 2 ; 3 ; 4 }")
+
+[<Test>]
 let test() =
     // Printf.eprintfn "%A" (Parse "1%2+3")
     // Printf.eprintfn "%A" (Parse "1/2+3")

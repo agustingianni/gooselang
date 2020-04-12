@@ -177,11 +177,11 @@ tuple_expr:
     | TUPLE LCURLY tuple_entry_list RCURLY  { AST.TupleLiteral($3) }
 
 tuple_entry_list:
-    | tuple_entry tuple_entry_list          { $1 :: $2 }
+    | tuple_entry sep tuple_entry_list      { $1 :: $3 }
     | tuple_entry                           { [$1] }
 
 tuple_entry:
-    | expr sep                              { $1 }
+    | expr                                  { $1 }
 
 // Array: array { ... }
 array_expr:

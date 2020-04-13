@@ -61,14 +61,37 @@ let TestIndexLookupExpr() =
     Printf.eprintfn "%A" (Parse "hola[0]")
     Printf.eprintfn "%A" (Parse "\"hola\"[1]")
 
+
+[<Test>]
+let TestDictExpr() =
+    Printf.eprintfn "%A" (Parse "dict { 1:one }")
+    Printf.eprintfn "%A" (Parse "dict { 1:one ; 2:two }")
+    Printf.eprintfn "%A" (Parse "dict { 1:one ; 2:two ; 3:three }")
+    Printf.eprintfn "%A" (Parse "
+    dict {
+        1:one
+        2:two
+        3:three
+    }")
+
 [<Test>]
 let TestStructExpr() =
     Printf.eprintfn "%A" (Parse "struct { a:int }")
     Printf.eprintfn "%A" (Parse "struct { a:int b:string }")
+    Printf.eprintfn "%A" (Parse "
+    struct {
+        a:int
+        b:string
+    }")
 
 [<Test>]
 let TestUnionExpr() =
     Printf.eprintfn "%A" (Parse "union { UnionElement:int }")
+    Printf.eprintfn "%A" (Parse "
+    union {
+        UnionElement1:int
+        UnionElement2:int
+    }")
 
 [<Test>]
 let TestTupleExpr() =
@@ -76,6 +99,13 @@ let TestTupleExpr() =
     Printf.eprintfn "%A" (Parse "tuple { 1 ; 2 }")
     Printf.eprintfn "%A" (Parse "tuple { 1 ; 2 ; 3 }")
     Printf.eprintfn "%A" (Parse "tuple { 1 ; 2 ; 3 ; 4 }")
+    Printf.eprintfn "%A" (Parse "
+    tuple {
+        1
+        2
+        3
+        4
+    }")
 
 [<Test>]
 let TestArrayExpr() =
@@ -83,6 +113,13 @@ let TestArrayExpr() =
     Printf.eprintfn "%A" (Parse "array { 1 ; 2 }")
     Printf.eprintfn "%A" (Parse "array { 1 ; 2 ; 3 }")
     Printf.eprintfn "%A" (Parse "array { 1 ; 2 ; 3 ; 4 }")
+    Printf.eprintfn "%A" (Parse "
+    array {
+        1
+        2
+        3
+        4
+    }")
 
 [<Test>]
 let TestDictionaryExpr() = Printf.eprintfn "%A" (Parse "dict { 1 : 1000 }")
@@ -169,7 +206,6 @@ let TextProgram() =
     let pepe = 1 + 1
     pepe
     ")
-
 
 // [<Test>]
 // let TestTypes() =

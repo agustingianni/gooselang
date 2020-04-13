@@ -41,27 +41,57 @@ let myUnion = union {
 ## Functions
 
 ```fsharp
-let name = x:t y:t -> x + y
-let pepe = x -> x + x
-let parameterLess = unit -> printf "hola"
+let inc = lambda (a) {
+    a + 1
+}
+
+let sum = lambda (a, b) {
+    a + b
+}
+
+let inc = lambda (a:int):int {
+    a + 1
+}
+
+let sum = lambda (a:int, b:int):int {
+    a + b
+}
+
 ```
 
 ## Array
 
 ```fsharp
-let array = [ 1 ; 2 ; 3 ]
+let array = array { 1 ; 2 ; 3 }
+
+let array = array {
+    1
+    2
+    3
+}
 ```
 
 ## Tuple
 
 ```fsharp
-let tuple = ( 1 ; "a" ; ident )
+let tuple = tuple { 1 ; "a" ; ident }
+
+let tuple = tuple {
+    1
+    "a"
+    ident
+}
 ```
 
 ## Dictionary
 
 ```fsharp
-let dictionary = { 1 : "one" ; 2 : "two" }
+let dictionary = dict { 1 : "one" ; 2 : "two" }
+
+let dictionary = dict {
+    1 : "one"
+    2 : "two"
+}
 ```
 
 ## Predicates

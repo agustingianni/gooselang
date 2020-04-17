@@ -9,6 +9,8 @@ Goose complete programming language
 - https://www.beeflang.org/
 - https://eev.ee/blog/2016/12/01/lets-stop-copying-c/
 - http://www.stephendiehl.com/llvm/
+- https://ziglang.org/documentation/master/
+- https://github.com/fscheck/FsCheck
 
 ## Bindings
 

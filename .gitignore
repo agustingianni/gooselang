@@ -27,6 +27,6 @@ nupkg/
 project.lock.json
 x64/
 x86/
-src/Parser/Parser.fs
+src/Parser/YaccParser.fs
+src/Parser/YaccParser.fsi
 src/Parser/Lexer.fs
-src/Parser/Parser.fsi

@@ -115,3 +115,6 @@ let TestLexer() =
     |> List.iter (fun (input, expected) ->
         let actual = tokenize input
         Assert.That(expected, Is.EqualTo(actual)))
+
+[<EntryPoint>]
+let main argv = 0

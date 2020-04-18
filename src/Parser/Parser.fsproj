@@ -13,6 +13,7 @@
     <Compile Include="YaccParser.fsi" />
     <Compile Include="YaccParser.fs" />
     <Compile Include="Lexer.fs" />
+    <Compile Include="Parser.fs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FsLexYacc" Version="10.0.0" />

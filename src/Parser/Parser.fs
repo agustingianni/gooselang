@@ -1,4 +1,4 @@
-module Parser
+module GooseLangParser
 
 open FSharp.Text.Lexing
 
@@ -6,7 +6,7 @@ let parseString (input: string) =
     let tokenized = LexBuffer<char>.FromString(input)
 
     try
-        YaccParser.program Lexer.tokenize tokenized
+        Parser.program Lexer.tokenize tokenized
 
     with e ->
         let pos = tokenized.EndPos

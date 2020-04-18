@@ -8,9 +8,6 @@ let printHelp() =
     Console.WriteLine("  #help  -> Shows this help.")
     Console.WriteLine("  #debug -> Toggle debug information.")
 
-let compileLine line =
-    Console.WriteLine(sprintf "Read line: %s" line)
-
 type Repl() =
     member this.Stop = false
     member this.Debug = false
@@ -38,9 +35,16 @@ type CommandHistory() =
         else
             ""
 
-// let printPrompt (message:string) =
-//     Console.Write("[λ]: ", Color.GreenYellow)
-//     Console.Write(message)
+let compileLine line =
+    Console.WriteLine(sprintf "Read line: %s" line)
+
+    let program = GooseLangParser.parseString line
+
+    Console.WriteLine(sprintf "Program: %A" program)
+
+    let result = Interpreter.execute program
+    
+    Console.WriteLine(sprintf "Result: %A" result)
 
 let readLine (commands: CommandHistory) =
     let chars = ResizeArray<char>()

@@ -2,16 +2,6 @@
 open Colorful
 open System.Drawing
 
-let printHelp() =
-    Console.WriteLine("Commands:")
-    Console.WriteLine("  #quit  -> Exits the repl.")
-    Console.WriteLine("  #help  -> Shows this help.")
-    Console.WriteLine("  #debug -> Toggle debug information.")
-
-type Repl() =
-    member this.Stop = false
-    member this.Debug = false
-
 type CommandHistory() =
     let elements = ResizeArray<string>()
     let mutable current = 0
@@ -86,41 +76,96 @@ let readLine (commands: CommandHistory) =
 
     chars.ToArray() |> String
 
+type ReplCommand =
+    | Quit
+    | Help
+    | ToggleDebug
+    | Clear
+    | ConsoleReset
+    | Invalid of string
+
+type LineCommand = 
+    | Command of ReplCommand
+    | Script of string
+    | Nothing
+
+type Repl() =
+    let mutable Stop = false
+    let mutable Debug = false
+
+    let parseReplCommand = function
+        | "#quit" -> Quit
+        | "#help" -> Help
+        | "#debug" -> ToggleDebug
+        | "#clear" -> Clear
+        | "#reset" -> ConsoleReset
+        | unknown -> Invalid(unknown)
+
+    let parseInputLine (line:string) =
+        if line.Length = 0 then
+            Nothing
+        else if line.StartsWith '#' then
+            Command(parseReplCommand line)
+        else
+            Script line
+
+    let printHelp() =
+        Console.WriteLine("Commands:")
+        Console.WriteLine("  #quit  -> Exits the repl.")
+        Console.WriteLine("  #help  -> Shows this help.")
+        Console.WriteLine("  #debug -> Toggle debug information.")
+        Console.WriteLine("  #clear -> Clear VM state.")
+        Console.WriteLine("  #reset -> Reset console.")
+
+    member this.HandleQuitCommand () =
+        Stop <- true
+
+    member this.HandleHelpCommand () =
+        printHelp()
+
+    member this.HandleDebugCommand () =
+        Debug <- not Debug
+        let message = (if Debug then "Enabled" else "Disabled") + " debugging."
+        Console.WriteLine(message)
+
+    member this.HandleConsoleResetCommand () =
+        Console.Clear()
+
+    member this.HandleClearVMStateCommand () =
+        ()
+
+    member this.HandleInvalidCommand command =
+        printfn "Ignoring unknown command %s" command
+
+    member this.HandleCommand command =
+        match command with
+        | Quit -> this.HandleQuitCommand ()
+        | Help -> this.HandleHelpCommand ()
+        | ToggleDebug -> this.HandleDebugCommand ()
+        | Clear -> this.HandleClearVMStateCommand ()
+        | ConsoleReset -> this.HandleConsoleResetCommand ()
+        | Invalid(command) -> this.HandleInvalidCommand command
+
+    member this.HandleScript script =
+        compileLine script
+
+    member this.Run () =
+        ReadLine.HistoryEnabled <- true
+
+        while not Stop do
+            let input = ReadLine.Read("[λ]: ")
+            let commandType = parseInputLine input
+
+            match commandType with
+            | Command(command) -> this.HandleCommand command
+            | Script(script) -> this.HandleScript script
+            | Nothing -> ()
 
 [<EntryPoint>]
 let main argv =
-    Console.WriteLine("Welcome to goose-lang repl!", Color.DarkRed)
-    Console.WriteLine("Type #help to see a list of available commands.", Color.DarkRed)
+    Console.WriteLine("Welcome to goose-lang repl!", Color.Blue)
+    Console.WriteLine("Type #help to see a list of available commands.", Color.Blue)
 
-    let state = Repl()
-
-    let mutable stop = false
-    let mutable debug = false
-
-    ReadLine.HistoryEnabled <- true
-
-    while not stop do
-        let input = ReadLine.Read("[λ]: ")
-
-        match input with
-        | "#quit" ->
-            stop <- true
-
-        | "#help" ->
-            printHelp()
-
-        | "#debug" ->
-            debug <- not debug
-            let message =
-                (if debug then "Enabled"
-                 else "Disabled")
-                + " debugging."
-            Console.WriteLine(message)
-
-        | "" ->
-            Console.WriteLine("")
-
-        | _ ->
-            compileLine input
-
+    let repl = Repl()
+    repl.Run()
     0

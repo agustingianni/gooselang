@@ -11,6 +11,29 @@ Goose complete programming language
 - http://www.stephendiehl.com/llvm/
 - https://ziglang.org/documentation/master/
 - https://github.com/fscheck/FsCheck
+- https://github.com/vain0x/milone-lang.git
+- https://github.com/FrankBro/ordo
+- https://caml.inria.fr/pub/docs/oreilly-book/html/book-ora058.html
+
+## Compiler Phases
+
+- Lexing
+  - Generates a token list
+- Parsing
+  - Generates an AST
+- Import Resolution
+  - Imports all the types from modules
+- Type Checking
+  - Iteratively typechecks the AST
+  - Constraint resolution
+  - Type Inference
+  - Generates a Typed AST
+- Code Generation
+  - Lowering
+  - Optimization
+- IL emit
+  - Emit IL
+  - Binary creation
 
 ## Bindings
 

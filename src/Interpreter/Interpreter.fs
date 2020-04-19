@@ -3,6 +3,8 @@
 open AST
 open System.Collections.Generic
 
+type Environment = Dictionary<string, Literal>
+
 module Operations =
     let onInt8 op lhs rhs =
         match op with
@@ -154,8 +156,8 @@ module Operations =
         | "eq" -> lhs = rhs |> Boolean
         | _ -> failwith "Invalid operand."
 
-type SimpleEvaluator() =
-    let env = new Dictionary<string, Literal>()
+type SimpleEvaluator(context: Environment) =
+    let env = context
 
     member this.EvalInfixExpression op lhs rhs =
         match lhs, rhs with
@@ -242,6 +244,6 @@ type SimpleEvaluator() =
         | Some expr -> this.EvalExpression expr
         | None -> Unit
 
-let execute (program: Program) =
-    let evaluator = SimpleEvaluator()
+let execute (context: Environment) (program: Program) =
+    let evaluator = SimpleEvaluator(context)
     evaluator.Eval program

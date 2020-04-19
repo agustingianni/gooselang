@@ -1,6 +1,7 @@
 ﻿open System
 open Colorful
 open System.Drawing
+open System.Collections.Generic
 
 type CommandHistory() =
     let elements = ResizeArray<string>()
@@ -24,15 +25,6 @@ type CommandHistory() =
             element
         else
             ""
-
-let compileLine line =
-    Console.WriteLine(sprintf "Read line: %s" line)
-
-    let program = line |> GooseLangParser.parseString
-    Console.WriteLine(sprintf "Program: %A" program)
-
-    let result = program |> Interpreter.execute
-    Console.WriteLine(sprintf "Result: %A" result)
 
 let readLine (commands: CommandHistory) =
     let chars = ResizeArray<char>()
@@ -82,9 +74,10 @@ type ReplCommand =
     | ToggleDebug
     | Clear
     | ConsoleReset
+    | ShowEnvironment
     | Invalid of string
 
-type LineCommand = 
+type LineCommand =
     | Command of ReplCommand
     | Script of string
     | Nothing
@@ -92,6 +85,9 @@ type LineCommand =
 type Repl() =
     let mutable Stop = false
     let mutable Debug = false
+    
+    // Keep track of any bindings declared inside our scripts.
+    let context = Interpreter.Environment()
 
     let parseReplCommand = function
         | "#quit" -> Quit
@@ -99,6 +95,7 @@ type Repl() =
         | "#debug" -> ToggleDebug
         | "#clear" -> Clear
         | "#reset" -> ConsoleReset
+        | "#env" -> ShowEnvironment
         | unknown -> Invalid(unknown)
 
     let parseInputLine (line:string) =
@@ -116,6 +113,7 @@ type Repl() =
         Console.WriteLine("  #debug -> Toggle debug information.")
         Console.WriteLine("  #clear -> Clear VM state.")
         Console.WriteLine("  #reset -> Reset console.")
+        Console.WriteLine("  #env   -> Show bindings.")
 
     member this.HandleQuitCommand () =
         Stop <- true
@@ -132,7 +130,7 @@ type Repl() =
         Console.Clear()
 
     member this.HandleClearVMStateCommand () =
-        ()
+        context.Clear()
 
     member this.HandleInvalidCommand command =
         printfn "Ignoring unknown command %s" command
@@ -144,20 +142,29 @@ type Repl() =
         | ToggleDebug -> this.HandleDebugCommand ()
         | Clear -> this.HandleClearVMStateCommand ()
         | ConsoleReset -> this.HandleConsoleResetCommand ()
+        | ShowEnvironment -> this.HandleShowEnvironmentCommand ()
         | Invalid(command) -> this.HandleInvalidCommand command
 
+    member this.HandleShowEnvironmentCommand () =
+        for binding in context do
+            printfn "%A -> %A" binding.Key binding.Value
+
     member this.HandleScript script =
-        compileLine script
+        let program = script |> GooseLangParser.parseString
+        Console.WriteLine(sprintf "Program: %A" program)
+
+        let result = Interpreter.execute context program
+        Console.WriteLine(sprintf "Result: %A" result)
 
     member this.Run () =
         ReadLine.HistoryEnabled <- true
 
         while not Stop do
             let input = ReadLine.Read("[λ]: ")
-            let commandType = parseInputLine input
+            let command = parseInputLine input
 
-            match commandType with
-            | Command(command) -> this.HandleCommand command
+            match command with
+            | Command(name) -> this.HandleCommand name
             | Script(script) -> this.HandleScript script
             | Nothing -> ()
 

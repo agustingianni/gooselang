@@ -38,12 +38,10 @@ type CommandHistory() =
 let compileLine line =
     Console.WriteLine(sprintf "Read line: %s" line)
 
-    let program = GooseLangParser.parseString line
-
+    let program = line |> GooseLangParser.parseString
     Console.WriteLine(sprintf "Program: %A" program)
 
-    let result = Interpreter.execute program
-    
+    let result = program |> Interpreter.execute
     Console.WriteLine(sprintf "Result: %A" result)
 
 let readLine (commands: CommandHistory) =

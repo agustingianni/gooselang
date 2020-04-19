@@ -192,8 +192,6 @@ type SimpleEvaluator() =
         v0
 
     member this.EvalExpression(expr: Expression) =
-        printfn "EXPR: %A" expr
-
         match expr with
         | Constant(cons) -> cons
 

@@ -24,7 +24,10 @@ let Parse input =
         exit 1
 
 let getProgramExpression = function
-    | Program(_, expr) -> expr
+    | Program(_, expr) ->
+        match expr with
+        | Some value -> value
+        | None -> failwith "Could not get expression value."
 
 [<Test>]
 let TestNumbers() =

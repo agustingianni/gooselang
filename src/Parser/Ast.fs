@@ -8,6 +8,7 @@ type Type =
     | TupleType of Type list
     | ArrayType of Type
     | StructType of Type list
+    | UnitType
     | UnknownType
 
 type Parameter =

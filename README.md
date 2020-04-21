@@ -14,6 +14,9 @@ Goose complete programming language
 - https://github.com/vain0x/milone-lang.git
 - https://github.com/FrankBro/ordo
 - https://caml.inria.fr/pub/docs/oreilly-book/html/book-ora058.html
+- https://github.com/jhasseldam/MicroFsharp
+- https://github.com/susl/compiler-in-fsharp
+- https://github.com/AndrewRublyov/MicroCosmo
 
 ## Compiler Phases
 

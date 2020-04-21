@@ -85,7 +85,7 @@ type LineCommand =
 type Repl() =
     let mutable Stop = false
     let mutable Debug = false
-    
+
     // Keep track of any bindings declared inside our scripts.
     let context = Interpreter.Environment()
 

@@ -199,6 +199,13 @@ let TextNumberLiterals() =
     Printf.eprintfn "%A" (Parse "0b11")
 
 [<Test>]
+let TestCallExpr() =
+    Printf.eprintfn "%A" (Parse "acos()")
+    Printf.eprintfn "%A" (Parse "acos(1)")
+    Printf.eprintfn "%A" (Parse "acos(1, 2)")
+    Printf.eprintfn "%A" (Parse "acos(a, b, c)")
+
+[<Test>]
 let TextProgram() =
     Printf.eprintfn "%A" (Parse "")
     Printf.eprintfn "%A" (Parse "

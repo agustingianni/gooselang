@@ -111,6 +111,18 @@ expr:
     | union_expr                            { $1 }
     | index_lookup_expr                     { $1 }
     | lambda_expr                           { $1 }
+    | call_expr                             { $1 }
+
+call_expr:
+    | IDENT call_args                       { AST.CallExpression($1, $2) }
+
+call_args:
+    | LPAREN call_args_list RPAREN          { $2 }
+
+call_args_list:
+    | expr COMMA call_args_list             { $1 :: $3 }
+    | expr                                  { [$1] }
+    |                                       { [] }
 
 // Identifier: someid
 variable_expr:

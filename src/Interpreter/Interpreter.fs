@@ -1,4 +1,4 @@
-﻿module Interpreter
+module Interpreter
 
 open AST
 open System.Collections.Generic
@@ -158,8 +158,8 @@ module Operations =
         | "eq" -> lhs = rhs |> Boolean
         | _ -> failwith "Invalid operand."
 
-type SimpleEvaluator(context: Environment) =
-    let env = context
+type SimpleEvaluator() =
+    let env = Stack<Environment>()
 
     let getLiteral =
         function
@@ -195,7 +195,7 @@ type SimpleEvaluator(context: Environment) =
                 index
                 |> getLiteral
                 |> getLiteralAsIndex
-            elements |> List.item 0
+            elements |> List.item index
 
         | DictionaryLiteral(elements) ->
             elements
@@ -245,7 +245,8 @@ type SimpleEvaluator(context: Environment) =
         | _ -> failwith "Cannot evaluate postfix operation."
 
     member this.EvalVariableExpression name =
-        let found, v0 = env.TryGetValue name
+        let cur_env = env.Peek()
+        let found, v0 = cur_env.TryGetValue name
         if not found then failwith "Variable not declared."
         v0
 
@@ -268,9 +269,55 @@ type SimpleEvaluator(context: Environment) =
 
         Value(getConstantType constant, Constant(constant))
 
+    member this.EvalCallExpression name arguments =
+        printfn "Calling function %s" name
+
+        // Get the function by name from the current context.
+        let cur_env = env.Peek()
+        let found, f = cur_env.TryGetValue name
+        if not found then failwith "Variable not declared."
+
+        // Evaluate the body.
+        match f with
+        | Lambda(parameters, _, body) ->
+            // Check that the parameter count matches.
+            if List.length arguments <> List.length parameters then
+                failwith "Number of parameters do not match."
+
+            // Evaluate the arguments.
+            let values = arguments |> List.map this.EvalExpression
+
+            // Create a new context.
+            let new_env = Environment()
+
+            // Build a tuple with the parameter and its value.
+            let zipped = List.zip parameters values
+
+            for (parameter, value) in zipped do
+                let name =
+                    match parameter with
+                        | UntypedParameter(name) -> name
+                        | TypedParameter(name, _) -> name
+
+                new_env.Add(name, value)
+
+            // Push the new environment.
+            env.Push new_env
+
+            // Evaluate the body.
+            let ret = this.EvalExpression body
+
+            // Pop the used environment.
+            env.Pop |> ignore
+
+            ret
+
+        | _ -> failwith "Not a function."
+
     member this.EvalExpression(expr: Expression): Expression =
         match expr with
-        | Constant(cons) -> expr
+        | Constant(_) ->
+            expr
 
         | Variable(name) -> this.EvalVariableExpression name
 
@@ -299,15 +346,22 @@ type SimpleEvaluator(context: Environment) =
 
         | IndexedLookup(expr, index) -> this.EvalIndexedLookup expr index
 
+        | CallExpression(name, args) ->
+            this.EvalCallExpression name args
+
+        | Lambda(_) ->
+            expr
+
         | _ -> failwith "Shit"
 
     member this.EvalOpenDeclaration name = printfn "Opening module %s" name
 
     member this.EvalLetDeclaration name expr =
-        if env.ContainsKey name then failwith "Vairiable already declared."
+        let cur_env = env.Peek()
+        if cur_env.ContainsKey name then failwith "Variable already declared."
         let val0 = this.EvalExpression expr
         printfn "Creating variable %s with value %A" name val0
-        env.Add(name, val0)
+        cur_env.Add(name, val0)
 
     member this.EvalDeclaration(decl: Declaration) =
         printfn "Evaluating declaration `%A`" decl
@@ -315,7 +369,9 @@ type SimpleEvaluator(context: Environment) =
         | Open(name) -> this.EvalOpenDeclaration name
         | Let(name, expr) -> this.EvalLetDeclaration name expr
 
-    member this.Eval(program: Program) =
+    member this.Eval(program: Program) (context: Environment) =
+        env.Push context
+
         let programDeclarations = function
             | Program(decls, _) -> decls
 
@@ -332,5 +388,5 @@ type SimpleEvaluator(context: Environment) =
         | None -> Constant(Unit)
 
 let execute (context: Environment) (program: Program) =
-    let evaluator = SimpleEvaluator(context)
-    evaluator.Eval program
+    let evaluator = SimpleEvaluator()
+    evaluator.Eval program context

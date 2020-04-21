@@ -43,11 +43,12 @@ type Expression =
     | PrefixExpression of string * Expression
     | PostfixExpression of string * Expression
     | InfixExpression of string * Expression * Expression
+    | CallExpression of Name * Expression list
+    | IndexedLookup of Expression * Expression
     | TupleLiteral of Expression list
     | ArrayLiteral of Expression list
     | DictionaryLiteral of (Expression * Expression) list
     | Lambda of Parameter list * Type * Expression
-    | IndexedLookup of Expression * Expression
     | Module
     | Struct of StructField list
     | Union of UnionField list

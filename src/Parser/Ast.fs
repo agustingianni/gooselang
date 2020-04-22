@@ -45,6 +45,7 @@ type Expression =
     | InfixExpression of string * Expression * Expression
     | CallExpression of Name * Expression list
     | IndexedLookup of Expression * Expression
+    | DotLookupExpression of Expression * Name
     | TupleLiteral of Expression list
     | ArrayLiteral of Expression list
     | DictionaryLiteral of (Expression * Expression) list

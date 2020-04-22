@@ -206,6 +206,10 @@ let TestCallExpr() =
     Printf.eprintfn "%A" (Parse "acos(a, b, c)")
 
 [<Test>]
+let TextDotLookupExpr() =
+    Printf.eprintfn "%A" (Parse "hello.world")
+
+[<Test>]
 let TextProgram() =
     Printf.eprintfn "%A" (Parse "")
     Printf.eprintfn "%A" (Parse "

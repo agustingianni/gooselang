@@ -206,6 +206,7 @@ rule tokenize = parse
     | ")"           { RPAREN }
     | "{"           { LCURLY }
     | "}"           { RCURLY }
+    | "."           { DOT }
 
     // Comments are not tokenized but skipped.
     | comment       { Comment lexbuf; tokenize lexbuf }

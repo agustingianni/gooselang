@@ -7,6 +7,7 @@
     <ProjectReference Include="../Parser/Parser.fsproj">
       <Name>Parser.fsproj</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Interpreter\Interpreter.fsproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.fs" />
